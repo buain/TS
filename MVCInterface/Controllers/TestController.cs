@@ -1,10 +1,12 @@
-﻿using MVCInterface.Models;
+﻿using AutoMapper;
+using MVCInterface.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using TestSystem.DAL.Entities;
+using TestSystem.BLL.DTO;
+using TestSystem.BLL.Interfaces;
 
 namespace MVCInterface.Controllers
 {
@@ -12,11 +14,24 @@ namespace MVCInterface.Controllers
     {
         // GET:
         UserContext db = new UserContext();
-        public ActionResult TestsList()
+        //public ActionResult TestsList()
+        //{
+        //    IEnumerable<Models.Test> tests = db.Tests;
+        //    ViewBag.Tests = tests;
+        //    return View();
+        //}
+        ITestLogic testLogic;
+        public TestController(ITestLogic logic)
         {
-            IEnumerable<Models.Test> tests = db.Tests;
-            ViewBag.Tests = tests;
-            return View();
+            testLogic = logic;
+        }
+        public ActionResult TestsList() // Вывод списка тестов
+        {
+            IEnumerable<TestDTO> testDTOs = testLogic.GetAll();
+            var mapper = new MapperConfiguration(cfg => cfg.CreateMap<TestDTO, Test>()).CreateMapper();
+            var testList = mapper.Map<IEnumerable<TestDTO>, List<Test>>(testDTOs);
+            //ViewBag.Tests = tests;
+            return View(testList);
         }
         //GET:
         [Authorize(Roles = "Admin")]
@@ -64,5 +79,15 @@ namespace MVCInterface.Controllers
 
             return View(model);
         }
+        [HttpGet]
+        public ActionResult Test1()
+        {
+            return View();
+        }
+        public void ResultTest1(string Test1Answer1, string Test1Answer2, string Test1Answer3)
+        {
+            
+        }
+
     }
 }
